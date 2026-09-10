@@ -1,559 +1,231 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#111827" />
-  <title>Control de Horas</title>
-  <style>
-    :root{
-      --bg:#f3f4f6;
-      --card:#ffffff;
-      --text:#111827;
-      --muted:#6b7280;
-      --border:#e5e7eb;
-      --green:#16a34a;
-      --red:#dc2626;
-      --blue:#2563eb;
-      --dark:#111827;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-      background:var(--bg);
-      color:var(--text);
-    }
-    .wrap{
-      max-width:900px;
-      margin:0 auto;
-      padding:20px;
-    }
-    h1{
-      margin:0 0 6px;
-      font-size:28px;
-    }
-    .subtitle{
-      color:var(--muted);
-      margin-bottom:20px;
-    }
-    .card{
-      background:var(--card);
-      border-radius:18px;
-      padding:18px;
-      box-shadow:0 4px 14px rgba(0,0,0,.06);
-      margin-bottom:16px;
-    }
-    .summary{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:12px;
-    }
-    .metric{
-      background:#f9fafb;
-      border:1px solid var(--border);
-      border-radius:14px;
-      padding:14px;
-    }
-    .metric .label{
-      font-size:13px;
-      color:var(--muted);
-    }
-    .metric .value{
-      font-size:25px;
-      font-weight:700;
-      margin-top:4px;
-    }
-    .actions{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
-      margin-top:16px;
-    }
-    button{
-      border:0;
-      border-radius:14px;
-      padding:16px;
-      font-size:16px;
-      font-weight:700;
-      cursor:pointer;
-    }
-    .btn-enter{background:var(--green); color:#fff;}
-    .btn-exit{background:var(--red); color:#fff;}
-    .btn-blue{background:var(--blue); color:#fff;}
-    .btn-dark{background:var(--dark); color:#fff;}
-    .btn-light{background:#eef2ff; color:#1e3a8a;}
-    .btn-danger{background:#fee2e2; color:#991b1b;}
-    button:disabled{opacity:.45; cursor:not-allowed}
-    .toolbar{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:end;
-    }
-    label{
-      display:block;
-      font-size:13px;
-      color:var(--muted);
-      margin-bottom:5px;
-    }
-    input, select{
-      width:100%;
-      padding:12px;
-      border:1px solid var(--border);
-      border-radius:12px;
-      font-size:16px;
-      background:#fff;
-    }
-    .field{min-width:160px; flex:1;}
-    .status{
-      margin-top:12px;
-      padding:12px;
-      border-radius:12px;
-      background:#f9fafb;
-      color:var(--muted);
-    }
-    table{
-      width:100%;
-      border-collapse:collapse;
-      font-size:14px;
-    }
-    th,td{
-      padding:10px 8px;
-      border-bottom:1px solid var(--border);
-      text-align:left;
-      vertical-align:middle;
-    }
-    th{color:var(--muted); font-size:12px; text-transform:uppercase;}
-    .table-wrap{overflow:auto;}
-    .small-btn{
-      padding:8px 10px;
-      font-size:13px;
-      border-radius:10px;
-      margin-right:6px;
-    }
-    .empty{
-      color:var(--muted);
-      text-align:center;
-      padding:24px 8px;
-    }
-    .modal{
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,.45);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding:20px;
-      z-index:100;
-    }
-    .modal.show{display:flex}
-    .modal-card{
-      width:min(520px,100%);
-      background:white;
-      border-radius:18px;
-      padding:18px;
-    }
-    .modal-grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
-    }
-    .modal-actions{
-      display:flex;
-      gap:10px;
-      margin-top:16px;
-    }
-    .modal-actions button{flex:1}
-    .note{
-      font-size:13px;
-      color:var(--muted);
-      margin-top:8px;
-    }
-    @media (max-width:650px){
-      .summary{grid-template-columns:1fr}
-      .actions{grid-template-columns:1fr 1fr}
-      .modal-grid{grid-template-columns:1fr}
-      th:nth-child(6),td:nth-child(6){display:none}
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Control de Horas</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#f3f4f6;margin:0;color:#111827}
+.wrap{max-width:760px;margin:auto;padding:18px}
+.card{background:#fff;border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:0 3px 12px rgba(0,0,0,.07)}
+.grid,.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.metric{background:#f9fafb;border-radius:14px;padding:14px}
+.metric b{display:block;font-size:24px;margin-top:5px}
+button{width:100%;padding:17px;border:0;border-radius:14px;font-size:17px;font-weight:700}
+.green{background:#16a34a;color:white} .red{background:#dc2626;color:white}
+.blue{background:#2563eb;color:white} .gray{background:#e5e7eb;color:#111827}
+input{width:100%;padding:12px;border:1px solid #d1d5db;border-radius:12px;font-size:16px;box-sizing:border-box}
+label{font-size:13px;color:#6b7280}
+.status{margin-top:14px;padding:12px;background:#f9fafb;border-radius:12px}
+.cloud{font-size:13px;margin-top:8px} .ok{color:#15803d} .bad{color:#b91c1c}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:8px;border-bottom:1px solid #e5e7eb;text-align:left;white-space:nowrap}
+.small{padding:8px 10px;width:auto;font-size:13px}
+@media(max-width:560px){.grid,.row{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>Control de Horas</h1>
-    <div class="subtitle">Registro de jornada y resumen mensual</div>
+<div class="wrap">
+<h1>Control de Horas</h1>
+<div style="color:#6b7280;margin-bottom:16px">11,00 €/hora · Sincronizado con Supabase</div>
 
-    <div class="card">
-      <div class="toolbar">
-        <div class="field">
-          <label>Mes</label>
-          <input type="month" id="monthPicker">
-        </div>
-        <div class="field">
-          <label>Precio por hora (€)</label>
-          <input type="number" id="hourRate" step="0.01" min="0" value="11">
-        </div>
-      </div>
+<div class="card">
+<div class="grid">
+<div class="metric">Horas del mes<b id="totalHoras">0,00 h</b></div>
+<div class="metric">Importe del mes<b id="totalEuros">0,00 €</b></div>
+</div>
+<div class="grid" style="margin-top:14px">
+<button class="green" onclick="registrarEntrada()">🟢 ENTRAR</button>
+<button class="red" onclick="registrarSalida()">🔴 SALIR</button>
+</div>
+<div id="estado" class="status">Cargando...</div>
+<div id="cloud" class="cloud">☁️ Conectando...</div>
+</div>
 
-      <div class="summary" style="margin-top:16px">
-        <div class="metric">
-          <div class="label">Horas del mes</div>
-          <div class="value" id="monthHours">0,00 h</div>
-        </div>
-        <div class="metric">
-          <div class="label">Importe del mes</div>
-          <div class="value" id="monthAmount">0,00 €</div>
-        </div>
-        <div class="metric">
-          <div class="label">Días trabajados</div>
-          <div class="value" id="monthDays">0</div>
-        </div>
-      </div>
+<div class="card">
+<h3>Añadir manualmente</h3>
+<div class="row">
+<div><label>Fecha</label><input id="fecha" type="date"></div>
+<div><label>Descanso (min)</label><input id="descanso" type="number" value="0"></div>
+<div><label>Entrada</label><input id="horaEntrada" type="time"></div>
+<div><label>Salida</label><input id="horaSalida" type="time"></div>
+</div>
+<div style="margin-top:12px"><label>Notas</label><input id="notas" type="text"></div>
+<button class="blue" style="margin-top:12px" onclick="guardarManual()">Guardar registro</button>
+</div>
 
-      <div class="actions">
-        <button class="btn-enter" id="btnEnter">🟢 ENTRAR</button>
-        <button class="btn-exit" id="btnExit">🔴 SALIR</button>
-      </div>
+<div class="card">
+<div class="row">
+<div><label>Mes</label><input id="mes" type="month" onchange="render()"></div>
+<div style="display:flex;align-items:end"><button class="gray" onclick="exportarCSV()">Exportar Excel/CSV</button></div>
+</div>
+<button class="gray" style="margin-top:12px" onclick="cargarRegistros()">🔄 Sincronizar</button>
+</div>
 
-      <div class="status" id="statusBox">No hay ninguna jornada abierta.</div>
-    </div>
+<div class="card">
+<h3>Registros</h3>
+<div style="overflow:auto">
+<table>
+<thead><tr><th>Fecha</th><th>Entrada</th><th>Salida</th><th>Horas</th><th>Importe</th><th></th></tr></thead>
+<tbody id="tabla"></tbody>
+</table>
+</div>
+</div>
+</div>
 
-    <div class="card">
-      <div class="toolbar">
-        <button class="btn-light" id="btnManual">➕ Añadir manualmente</button>
-        <button class="btn-blue" id="btnExcel">📊 Generar Excel</button>
-      </div>
-      <div class="note">Los datos se guardan en este dispositivo. Más adelante los conectaremos con Supabase para sincronizar iPhone, iPad y PC.</div>
-    </div>
+<script>
+const SUPABASE_URL = 'https://zcgynioyrrkylduyyykx.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_yGmuolPMm9OeMkLosr8rBg_aGYMIy0g';
+const TABLE = 'registros-horas';
+const PRECIO = 11;
+let registros = [];
 
-    <div class="card">
-      <h2 style="margin-top:0">Registros del mes</h2>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Entrada</th>
-              <th>Salida</th>
-              <th>Descanso</th>
-              <th>Horas</th>
-              <th>Importe</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="recordsBody"></tbody>
-        </table>
-      </div>
-      <div class="empty" id="emptyState">Todavía no hay registros en este mes.</div>
-    </div>
-  </div>
-
-  <div class="modal" id="editModal">
-    <div class="modal-card">
-      <h2 id="modalTitle" style="margin-top:0">Añadir registro</h2>
-      <div class="modal-grid">
-        <div>
-          <label>Fecha</label>
-          <input type="date" id="editDate">
-        </div>
-        <div>
-          <label>Descanso (minutos)</label>
-          <input type="number" id="editBreak" min="0" step="1" value="0">
-        </div>
-        <div>
-          <label>Hora de entrada</label>
-          <input type="time" id="editStart">
-        </div>
-        <div>
-          <label>Hora de salida</label>
-          <input type="time" id="editEnd">
-        </div>
-      </div>
-      <div style="margin-top:12px">
-        <label>Observaciones</label>
-        <input type="text" id="editNotes" placeholder="Opcional">
-      </div>
-      <div class="modal-actions">
-        <button class="btn-light" id="btnCancel">Cancelar</button>
-        <button class="btn-dark" id="btnSave">Guardar</button>
-      </div>
-    </div>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script>
-    const STORAGE_KEY = "controlHorasRegistrosV1";
-    const RATE_KEY = "controlHorasPrecioV1";
-
-    function storageGet(key, fallback=""){
-      try {
-        const v = window.localStorage.getItem(key);
-        return v === null ? fallback : v;
-      } catch(e) {
-        return fallback;
-      }
-    }
-    function storageSet(key, value){
-      try {
-        window.localStorage.setItem(key, value);
-      } catch(e) {
-        // La app seguirá funcionando durante esta sesión aunque el navegador bloquee localStorage.
-      }
-    }
-
-    let records = [];
-    try {
-      records = JSON.parse(storageGet(STORAGE_KEY, "[]")) || [];
-    } catch(e) {
-      records = [];
-    }
-    let editingId = null;
-
-    const $ = (id) => document.getElementById(id);
-    const monthPicker = $("monthPicker");
-    const hourRate = $("hourRate");
-    const recordsBody = $("recordsBody");
-    const emptyState = $("emptyState");
-    const statusBox = $("statusBox");
-    const btnEnter = $("btnEnter");
-    const btnExit = $("btnExit");
-
-    function pad(n){ return String(n).padStart(2,"0"); }
-    function localDateString(d = new Date()){
-      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-    }
-    function localTimeString(d = new Date()){
-      return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
-    }
-    function currentMonth(){
-      const d = new Date();
-      return `${d.getFullYear()}-${pad(d.getMonth()+1)}`;
-    }
-    function uid(){
-      return Date.now().toString(36) + Math.random().toString(36).slice(2);
-    }
-    function save(){
-      storageSet(STORAGE_KEY, JSON.stringify(records));
-    }
-    function getRate(){
-      return Number(hourRate.value || 0);
-    }
-    function formatMoney(n){
-      return new Intl.NumberFormat("es-ES",{style:"currency",currency:"EUR"}).format(n);
-    }
-    function formatHours(n){
-      return new Intl.NumberFormat("es-ES",{minimumFractionDigits:2,maximumFractionDigits:2}).format(n) + " h";
-    }
-    function durationHours(r){
-      if(!r.start || !r.end) return 0;
-      const [sh,sm]=r.start.split(":").map(Number);
-      const [eh,em]=r.end.split(":").map(Number);
-      let minutes=(eh*60+em)-(sh*60+sm);
-      if(minutes<0) minutes += 24*60;
-      minutes -= Number(r.breakMinutes || 0);
-      return Math.max(0, minutes/60);
-    }
-    function formatDateES(iso){
-      if(!iso) return "";
-      const [y,m,d] = iso.split("-");
-      return `${d}/${m}/${y}`;
-    }
-    function selectedRecords(){
-      const m = monthPicker.value;
-      return records
-        .filter(r => r.date && r.date.startsWith(m))
-        .sort((a,b)=> a.date.localeCompare(b.date) || (a.start||"").localeCompare(b.start||""));
-    }
-    function openRecord(){
-      return records.find(r => !r.end);
-    }
-    function updateStatus(){
-      const open = openRecord();
-      if(open){
-        statusBox.textContent = `Jornada abierta: ${formatDateES(open.date)} a las ${open.start}.`;
-        btnEnter.disabled = true;
-        btnExit.disabled = false;
-      } else {
-        statusBox.textContent = "No hay ninguna jornada abierta.";
-        btnEnter.disabled = false;
-        btnExit.disabled = true;
-      }
-    }
-    function render(){
-      const list = selectedRecords();
-      recordsBody.innerHTML = "";
-      let totalHours=0, days=new Set();
-
-      list.forEach(r=>{
-        const h=durationHours(r);
-        totalHours += h;
-        if(h>0) days.add(r.date);
-        const amount=h*getRate();
-        const tr=document.createElement("tr");
-        tr.innerHTML=`
-          <td>${formatDateES(r.date)}</td>
-          <td>${r.start || "-"}</td>
-          <td>${r.end || "Abierta"}</td>
-          <td>${Number(r.breakMinutes||0)} min</td>
-          <td>${formatHours(h)}</td>
-          <td>${formatMoney(amount)}</td>
-          <td>
-            <button class="small-btn btn-light" onclick="editRecord('${r.id}')">Editar</button>
-            <button class="small-btn btn-danger" onclick="deleteRecord('${r.id}')">Borrar</button>
-          </td>`;
-        recordsBody.appendChild(tr);
-      });
-
-      emptyState.style.display = list.length ? "none" : "block";
-      $("monthHours").textContent = formatHours(totalHours);
-      $("monthAmount").textContent = formatMoney(totalHours*getRate());
-      $("monthDays").textContent = days.size;
-      updateStatus();
-    }
-
-    btnEnter.addEventListener("click",()=>{
-      if(openRecord()) return;
-      const now=new Date();
-      records.push({
-        id:uid(),
-        date:localDateString(now),
-        start:localTimeString(now),
-        end:"",
-        breakMinutes:0,
-        notes:""
-      });
-      save();
-      monthPicker.value=currentMonth();
-      render();
-      statusBox.textContent = `Entrada registrada hoy a las ${localTimeString(now)}.`;
+function pad(n){return String(n).padStart(2,"0")}
+function hoy(){const d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
+function ahora(){const d=new Date();return pad(d.getHours())+":"+pad(d.getMinutes())}
+function mesActual(){const d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)}
+function abierta(){return registros.find(r=>!r.salida)||null}
+function horas(r){
+  if(!r.entrada||!r.salida)return 0;
+  const a=r.entrada.split(":"), b=r.salida.split(":");
+  let m=(+b[0]*60 + +b[1])-(+a[0]*60 + +a[1]);
+  if(m<0)m+=1440;
+  m-=Number(r.descanso||0);
+  return Math.max(0,m/60);
+}
+function ponerCloud(msg,ok=true){
+  const e=document.getElementById("cloud");
+  e.textContent=msg;
+  e.className="cloud "+(ok?"ok":"bad");
+}
+async function api(path,opt={}){
+  const headers={
+    apikey:SUPABASE_KEY,
+    Authorization:"Bearer "+SUPABASE_KEY,
+    "Content-Type":"application/json",
+    Accept:"application/json",
+    ...(opt.headers||{})
+  };
+  const r=await fetch(SUPABASE_URL+"/rest/v1/"+path,{...opt,headers});
+  const tx=await r.text();
+  let data=null;
+  if(tx){try{data=JSON.parse(tx)}catch{data=tx}}
+  if(!r.ok)throw new Error((data&&data.message)||tx||("HTTP "+r.status));
+  return data;
+}
+async function cargarRegistros(){
+  ponerCloud("☁️ Sincronizando...");
+  try{
+    const data=await api(encodeURIComponent(TABLE)+"?select=*&order=fecha.asc,entrada.asc");
+    registros=Array.isArray(data)?data:[];
+    localStorage.setItem("horas_cache_v4",JSON.stringify(registros));
+    ponerCloud("☁️ Sincronizado con Supabase",true);
+  }catch(e){
+    try{registros=JSON.parse(localStorage.getItem("horas_cache_v4")||"[]")}catch{registros=[]}
+    ponerCloud("⚠️ "+e.message,false);
+  }
+  render();
+}
+async function registrarEntrada(){
+  if(abierta())return alert("Ya hay una jornada abierta.");
+  const nuevo={fecha:hoy(),entrada:ahora(),salida:null,descanso:0,notas:""};
+  try{
+    await api(encodeURIComponent(TABLE),{
+      method:"POST",
+      headers:{Prefer:"return=representation"},
+      body:JSON.stringify(nuevo)
     });
-
-    btnExit.addEventListener("click",()=>{
-      const open=openRecord();
-      if(!open) return;
-      open.end=localTimeString(new Date());
-      const exitTime = open.end;
-      save();
-      monthPicker.value=open.date.slice(0,7);
-      render();
-      statusBox.textContent = `Salida registrada a las ${exitTime}.`;
+    await cargarRegistros();
+  }catch(e){
+    ponerCloud("❌ "+e.message,false);
+    alert("No se pudo guardar la entrada. Revisa las políticas RLS.");
+  }
+}
+async function registrarSalida(){
+  const r=abierta();
+  if(!r)return alert("No hay ninguna entrada abierta.");
+  try{
+    await api(encodeURIComponent(TABLE)+"?id=eq."+encodeURIComponent(r.id),{
+      method:"PATCH",
+      body:JSON.stringify({salida:ahora()})
     });
-
-    hourRate.value = storageGet(RATE_KEY, "11");
-    hourRate.addEventListener("change",()=>{
-      storageSet(RATE_KEY, hourRate.value);
-      render();
+    await cargarRegistros();
+  }catch(e){
+    ponerCloud("❌ "+e.message,false);
+    alert("No se pudo guardar la salida. Revisa las políticas RLS.");
+  }
+}
+async function guardarManual(){
+  const f=document.getElementById("fecha").value;
+  const e=document.getElementById("horaEntrada").value;
+  const s=document.getElementById("horaSalida").value;
+  const d=Number(document.getElementById("descanso").value||0);
+  const n=document.getElementById("notas").value.trim();
+  if(!f||!e||!s)return alert("Completa fecha, entrada y salida.");
+  try{
+    await api(encodeURIComponent(TABLE),{
+      method:"POST",
+      body:JSON.stringify({fecha:f,entrada:e,salida:s,descanso:d,notas:n})
     });
-    monthPicker.addEventListener("change", render);
-
-    function showModal(r=null){
-      editingId = r ? r.id : null;
-      $("modalTitle").textContent = r ? "Editar registro" : "Añadir registro";
-      $("editDate").value = r?.date || localDateString();
-      $("editStart").value = r?.start || "";
-      $("editEnd").value = r?.end || "";
-      $("editBreak").value = r?.breakMinutes ?? 0;
-      $("editNotes").value = r?.notes || "";
-      $("editModal").classList.add("show");
-    }
-    function hideModal(){
-      $("editModal").classList.remove("show");
-      editingId=null;
-    }
-
-    $("btnManual").addEventListener("click",()=>showModal());
-    $("btnCancel").addEventListener("click", hideModal);
-    $("editModal").addEventListener("click",(e)=>{
-      if(e.target.id==="editModal") hideModal();
-    });
-
-    $("btnSave").addEventListener("click",()=>{
-      const date=$("editDate").value;
-      const start=$("editStart").value;
-      const end=$("editEnd").value;
-      if(!date || !start || !end){
-        alert("Indica fecha, entrada y salida.");
-        return;
-      }
-      const data={
-        date,
-        start,
-        end,
-        breakMinutes:Number($("editBreak").value||0),
-        notes:$("editNotes").value.trim()
-      };
-      if(editingId){
-        const r=records.find(x=>x.id===editingId);
-        Object.assign(r,data);
-      }else{
-        records.push({id:uid(),...data});
-      }
-      save();
-      monthPicker.value=date.slice(0,7);
-      hideModal();
-      render();
-    });
-
-    window.editRecord=(id)=>{
-      const r=records.find(x=>x.id===id);
-      if(r) showModal(r);
-    };
-
-    window.deleteRecord=(id)=>{
-      if(confirm("¿Quieres borrar este registro?")){
-        records=records.filter(x=>x.id!==id);
-        save();
-        render();
-      }
-    };
-
-    $("btnExcel").addEventListener("click",()=>{
-      const list=selectedRecords();
-      if(!list.length){
-        alert("No hay registros en este mes.");
-        return;
-      }
-      if(typeof XLSX==="undefined"){
-        alert("No se ha podido cargar el módulo de Excel. Comprueba la conexión a Internet.");
-        return;
-      }
-
-      const rate=getRate();
-      const rows=list.map(r=>{
-        const h=durationHours(r);
-        return {
-          "Fecha": formatDateES(r.date),
-          "Entrada": r.start,
-          "Salida": r.end || "",
-          "Descanso (min)": Number(r.breakMinutes||0),
-          "Horas": Number(h.toFixed(2)),
-          "Precio/hora (€)": Number(rate.toFixed(2)),
-          "Importe (€)": Number((h*rate).toFixed(2)),
-          "Observaciones": r.notes || ""
-        };
-      });
-
-      const totalHours=list.reduce((s,r)=>s+durationHours(r),0);
-      rows.push({});
-      rows.push({
-        "Fecha":"TOTAL",
-        "Horas":Number(totalHours.toFixed(2)),
-        "Importe (€)":Number((totalHours*rate).toFixed(2))
-      });
-
-      const ws=XLSX.utils.json_to_sheet(rows);
-      ws["!cols"]=[
-        {wch:12},{wch:10},{wch:10},{wch:16},
-        {wch:10},{wch:16},{wch:14},{wch:30}
-      ];
-
-      const wb=XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb,ws,"Horas");
-      XLSX.writeFile(wb,`Control_horas_${monthPicker.value}.xlsx`);
-    });
-
-    monthPicker.value=currentMonth();
-    render();
-  </script>
+    document.getElementById("mes").value=f.slice(0,7);
+    document.getElementById("horaEntrada").value="";
+    document.getElementById("horaSalida").value="";
+    document.getElementById("notas").value="";
+    await cargarRegistros();
+  }catch(err){
+    ponerCloud("❌ "+err.message,false);
+    alert("No se pudo guardar el registro. Revisa las políticas RLS.");
+  }
+}
+async function borrarRegistro(id){
+  if(!confirm("¿Borrar este registro?"))return;
+  try{
+    await api(encodeURIComponent(TABLE)+"?id=eq."+encodeURIComponent(id),{method:"DELETE"});
+    await cargarRegistros();
+  }catch(e){
+    alert("No se pudo borrar el registro.");
+  }
+}
+function render(){
+  const m=document.getElementById("mes").value;
+  const lista=registros.filter(r=>r.fecha&&r.fecha.startsWith(m));
+  let total=0,html="";
+  lista.forEach(r=>{
+    const h=horas(r); total+=h;
+    html+=`<tr>
+      <td>${r.fecha.split("-").reverse().join("/")}</td>
+      <td>${r.entrada||""}</td>
+      <td>${r.salida||"Abierta"}</td>
+      <td>${h.toFixed(2).replace(".",",")}</td>
+      <td>${(h*PRECIO).toFixed(2).replace(".",",")} €</td>
+      <td><button class="small gray" onclick="borrarRegistro('${r.id}')">Borrar</button></td>
+    </tr>`;
+  });
+  document.getElementById("tabla").innerHTML=html;
+  document.getElementById("totalHoras").textContent=total.toFixed(2).replace(".",",")+" h";
+  document.getElementById("totalEuros").textContent=(total*PRECIO).toFixed(2).replace(".",",")+" €";
+  const a=abierta();
+  document.getElementById("estado").textContent=a?"Jornada abierta desde las "+a.entrada:"No hay jornada abierta.";
+}
+function exportarCSV(){
+  const m=document.getElementById("mes").value;
+  const lista=registros.filter(r=>r.fecha&&r.fecha.startsWith(m));
+  if(!lista.length)return alert("No hay registros en este mes.");
+  let csv="Fecha;Entrada;Salida;Descanso;Horas;Precio/hora;Importe;Notas\n",total=0;
+  lista.forEach(r=>{
+    const h=horas(r); total+=h;
+    csv += `${r.fecha};${r.entrada||""};${r.salida||""};${r.descanso||0};${h.toFixed(2).replace(".",",")};11,00;${(h*11).toFixed(2).replace(".",",")};${(r.notas||"").replaceAll(";"," ")}\n`;
+  });
+  csv+=`TOTAL;;;;${total.toFixed(2).replace(".",",")};;${(total*11).toFixed(2).replace(".",",")};\n`;
+  const blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"});
+  const u=URL.createObjectURL(blob),a=document.createElement("a");
+  a.href=u;a.download="Control_horas_"+m+".csv";a.click();URL.revokeObjectURL(u);
+}
+window.addEventListener("load",()=>{
+  document.getElementById("mes").value=mesActual();
+  document.getElementById("fecha").value=hoy();
+  cargarRegistros();
+});
+</script>
 </body>
 </html>
