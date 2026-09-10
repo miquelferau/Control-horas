@@ -1,75 +1,76 @@
 <!doctype html>
 <html lang="es">
 <head>
-
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta charset="utf-8">
-<meta 
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Control de Horas</title>
 <style>
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#f3f4f6;margin:0;color:#111827}
-.wrap{max-width:760px;margin:auto;padding:18px}
-.card{background:#fff;border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:0 3px 12px rgba(0,0,0,.07)}
-.grid,.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.metric{background:#f9fafb;border-radius:14px;padding:14px}
-.metric b{display:block;font-size:24px;margin-top:5px}
-button{width:100%;padding:17px;border:0;border-radius:14px;font-size:17px;font-weight:700}
-.green{background:#16a34a;color:white} .red{background:#dc2626;color:white}
-.blue{background:#2563eb;color:white} .gray{background:#e5e7eb;color:#111827}
-input{width:100%;padding:12px;border:1px solid #d1d5db;border-radius:12px;font-size:16px;box-sizing:border-box}
-label{font-size:13px;color:#6b7280}
-.status{margin-top:14px;padding:12px;background:#f9fafb;border-radius:12px}
-.cloud{font-size:13px;margin-top:8px} .ok{color:#15803d} .bad{color:#b91c1c}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{padding:8px;border-bottom:1px solid #e5e7eb;text-align:left;white-space:nowrap}
-.small{padding:8px 10px;width:auto;font-size:13px}
-@media(max-width:560px){.grid,.row{grid-template-columns:1fr}}
+.wrap{max-width:860px;margin:auto;padding:18px}.card{background:#fff;border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:0 3px 12px rgba(0,0,0,.07)}
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.metric{background:#f9fafb;border-radius:14px;padding:14px;border:1px solid #e5e7eb}.metric b{display:block;font-size:24px;margin-top:5px}
+.buttons,.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}button{width:100%;padding:16px;border:0;border-radius:14px;font-size:16px;font-weight:700}
+.green{background:#16a34a;color:#fff}.red{background:#dc2626;color:#fff}.blue{background:#2563eb;color:#fff}.orange{background:#ea580c;color:#fff}.gray{background:#e5e7eb}.danger{background:#fee2e2;color:#991b1b}
+input{width:100%;padding:12px;border:1px solid #d1d5db;border-radius:12px;font-size:16px;box-sizing:border-box}label{display:block;font-size:13px;color:#6b7280;margin-bottom:5px}
+.status{margin-top:14px;padding:12px;background:#f9fafb;border-radius:12px}.cloud{font-size:13px;margin-top:8px}.ok{color:#15803d}.bad{color:#b91c1c}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;border-bottom:1px solid #e5e7eb;text-align:left;white-space:nowrap}.small{padding:8px 10px;width:auto;font-size:12px}
+@media(max-width:650px){.summary,.row{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="wrap">
 <h1>Control de Horas</h1>
-<div style="color:#6b7280;margin-bottom:16px">11,00 €/hora · Sincronizado con Supabase</div>
+<div style="color:#6b7280;margin-bottom:16px">11,00 €/hora · Mañana y tarde</div>
 
 <div class="card">
-<div class="grid">
+<div class="summary">
 <div class="metric">Horas del mes<b id="totalHoras">0,00 h</b></div>
 <div class="metric">Importe del mes<b id="totalEuros">0,00 €</b></div>
+<div class="metric">Días trabajados<b id="totalDias">0</b></div>
 </div>
-<div class="grid" style="margin-top:14px">
-<button class="green" onclick="registrarEntrada()">🟢 ENTRAR</button>
-<button class="red" onclick="registrarSalida()">🔴 SALIR</button>
+</div>
+
+<div class="card">
+<h3>Mañana</h3>
+<div class="buttons">
+<button class="green" onclick="fichar('entrada_manana')">🟢 ENTRADA MAÑANA</button>
+<button class="red" onclick="fichar('salida_manana')">🔴 SALIDA MAÑANA</button>
+</div>
+<h3>Tarde</h3>
+<div class="buttons">
+<button class="blue" onclick="fichar('entrada_tarde')">🔵 ENTRADA TARDE</button>
+<button class="orange" onclick="fichar('salida_tarde')">🟠 SALIDA TARDE</button>
 </div>
 <div id="estado" class="status">Cargando...</div>
 <div id="cloud" class="cloud">☁️ Conectando...</div>
 </div>
 
 <div class="card">
-<h3>Añadir manualmente</h3>
+<h3>Añadir o corregir día</h3>
 <div class="row">
 <div><label>Fecha</label><input id="fecha" type="date"></div>
-<div><label>Descanso (min)</label><input id="descanso" type="number" value="0"></div>
-<div><label>Entrada</label><input id="horaEntrada" type="time"></div>
-<div><label>Salida</label><input id="horaSalida" type="time"></div>
+<div><label>Entrada mañana</label><input id="mEntrada" type="time"></div>
+<div><label>Salida mañana</label><input id="mSalida" type="time"></div>
+<div><label>Entrada tarde</label><input id="tEntrada" type="time"></div>
+<div><label>Salida tarde</label><input id="tSalida" type="time"></div>
+<div><label>Notas</label><input id="notas" type="text"></div>
 </div>
-<div style="margin-top:12px"><label>Notas</label><input id="notas" type="text"></div>
-<button class="blue" style="margin-top:12px" onclick="guardarManual()">Guardar registro</button>
+<button class="blue" style="margin-top:12px" onclick="guardarManual()">Guardar / actualizar día</button>
 </div>
 
 <div class="card">
 <div class="row">
 <div><label>Mes</label><input id="mes" type="month" onchange="render()"></div>
-<div style="display:flex;align-items:end"><button class="gray" onclick="exportarCSV()">Exportar Excel/CSV</button></div>
+<div style="display:flex;align-items:end"><button class="gray" onclick="exportarCSV()">Exportar informe Excel/CSV</button></div>
 </div>
-<button class="gray" style="margin-top:12px" onclick="cargarRegistros()">🔄 Sincronizar</button>
+<button class="gray" style="margin-top:12px" onclick="cargar()">🔄 Sincronizar</button>
 </div>
 
 <div class="card">
 <h3>Registros</h3>
 <div style="overflow:auto">
 <table>
-<thead><tr><th>Fecha</th><th>Entrada</th><th>Salida</th><th>Horas</th><th>Importe</th><th></th></tr></thead>
+<thead><tr><th>Fecha</th><th>Ent. mañana</th><th>Sal. mañana</th><th>Ent. tarde</th><th>Sal. tarde</th><th>Horas</th><th>Importe</th><th></th></tr></thead>
 <tbody id="tabla"></tbody>
 </table>
 </div>
@@ -77,158 +78,91 @@ th,td{padding:8px;border-bottom:1px solid #e5e7eb;text-align:left;white-space:no
 </div>
 
 <script>
-const SUPABASE_URL = 'https://zcgynioyrrkylduyyykx.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_yGmuolPMm9OeMkLosr8rBg_aGYMIy0g';
-const TABLE = 'registros-horas';
-const PRECIO = 11;
-let registros = [];
+const SUPABASE_URL="https://zcgynioyrrkylduyyykx.supabase.co";
+const SUPABASE_KEY="sb_publishable_yGmuolPMm9OeMkLosr8rBg_aGYMIy0g";
+const TABLE="registros-horas";
+const PRECIO=11;
+let registros=[];
 
-function pad(n){return String(n).padStart(2,"0")}
-function hoy(){const d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
-function ahora(){const d=new Date();return pad(d.getHours())+":"+pad(d.getMinutes())}
-function mesActual(){const d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)}
-function abierta(){return registros.find(r=>!r.salida)||null}
-function horas(r){
-  if(!r.entrada||!r.salida)return 0;
-  const a=r.entrada.split(":"), b=r.salida.split(":");
-  let m=(+b[0]*60 + +b[1])-(+a[0]*60 + +a[1]);
-  if(m<0)m+=1440;
-  m-=Number(r.descanso||0);
-  return Math.max(0,m/60);
-}
-function ponerCloud(msg,ok=true){
-  const e=document.getElementById("cloud");
-  e.textContent=msg;
-  e.className="cloud "+(ok?"ok":"bad");
-}
-async function api(path,opt={}){
-  const headers={
-    apikey:SUPABASE_KEY,
-    Authorization:"Bearer "+SUPABASE_KEY,
-    "Content-Type":"application/json",
-    Accept:"application/json",
-    ...(opt.headers||{})
-  };
-  const r=await fetch(SUPABASE_URL+"/rest/v1/"+path,{...opt,headers});
-  const tx=await r.text();
-  let data=null;
-  if(tx){try{data=JSON.parse(tx)}catch{data=tx}}
-  if(!r.ok)throw new Error((data&&data.message)||tx||("HTTP "+r.status));
-  return data;
-}
-async function cargarRegistros(){
-  ponerCloud("☁️ Sincronizando...");
+function p(n){return String(n).padStart(2,"0")}
+function hoy(){const d=new Date();return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())}
+function ahora(){const d=new Date();return p(d.getHours())+":"+p(d.getMinutes())}
+function mesActual(){const d=new Date();return d.getFullYear()+"-"+p(d.getMonth()+1)}
+function hh(v){return v?String(v).slice(0,5):""}
+function minutos(a,b){if(!a||!b)return 0;const x=a.split(":").map(Number),y=b.split(":").map(Number);let m=(y[0]*60+y[1])-(x[0]*60+x[1]);if(m<0)m+=1440;return m}
+function horasDia(r){return (minutos(hh(r.entrada_manana||r.entrada),hh(r.salida_manana||r.salida))+minutos(hh(r.entrada_tarde),hh(r.salida_tarde)))/60}
+function nube(t,ok=true){const e=document.getElementById("cloud");e.textContent=t;e.className="cloud "+(ok?"ok":"bad")}
+async function api(path,opt={}){const headers={apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY,"Content-Type":"application/json",Accept:"application/json",...(opt.headers||{})};const r=await fetch(SUPABASE_URL+"/rest/v1/"+path,{...opt,headers});const tx=await r.text();let d=null;if(tx)try{d=JSON.parse(tx)}catch{d=tx}if(!r.ok)throw new Error((d&&d.message)||tx||("HTTP "+r.status));return d}
+function deHoy(){return registros.find(r=>r.fecha===hoy())||null}
+
+async function cargar(){
+  nube("☁️ Sincronizando...");
   try{
-    const data=await api(encodeURIComponent(TABLE)+"?select=*&order=fecha.asc,entrada.asc");
-    registros=Array.isArray(data)?data:[];
-    localStorage.setItem("horas_cache_v4",JSON.stringify(registros));
-    ponerCloud("☁️ Sincronizado con Supabase",true);
+    const d=await api(encodeURIComponent(TABLE)+"?select=*&order=fecha.asc");
+    registros=Array.isArray(d)?d:[];
+    localStorage.setItem("horas_cache_v5",JSON.stringify(registros));
+    nube("☁️ Sincronizado con Supabase");
   }catch(e){
-    try{registros=JSON.parse(localStorage.getItem("horas_cache_v4")||"[]")}catch{registros=[]}
-    ponerCloud("⚠️ "+e.message,false);
+    try{registros=JSON.parse(localStorage.getItem("horas_cache_v5")||"[]")}catch{registros=[]}
+    nube("⚠️ "+e.message,false);
   }
   render();
 }
-async function registrarEntrada(){
-  if(abierta())return alert("Ya hay una jornada abierta.");
-  const nuevo={fecha:hoy(),entrada:ahora(),salida:null,descanso:0,notas:""};
+
+async function fichar(campo){
+  const r=deHoy(), h=ahora();
+  if(campo==="salida_manana" && (!r || !(r.entrada_manana||r.entrada))) return alert("Primero registra la entrada de la mañana.");
+  if(campo==="salida_tarde" && (!r || !r.entrada_tarde)) return alert("Primero registra la entrada de la tarde.");
   try{
-    await api(encodeURIComponent(TABLE),{
-      method:"POST",
-      headers:{Prefer:"return=representation"},
-      body:JSON.stringify(nuevo)
-    });
-    await cargarRegistros();
-  }catch(e){
-    ponerCloud("❌ "+e.message,false);
-    alert("No se pudo guardar la entrada. Revisa las políticas RLS.");
-  }
+    if(!r){
+      const n={fecha:hoy(),entrada_manana:null,salida_manana:null,entrada_tarde:null,salida_tarde:null,notas:""};
+      n[campo]=h;
+      await api(encodeURIComponent(TABLE),{method:"POST",body:JSON.stringify(n)});
+    }else{
+      const c={};c[campo]=h;
+      await api(encodeURIComponent(TABLE)+"?id=eq."+encodeURIComponent(r.id),{method:"PATCH",body:JSON.stringify(c)});
+    }
+    await cargar();
+  }catch(e){nube("❌ "+e.message,false);alert("No se pudo guardar el fichaje.");}
 }
-async function registrarSalida(){
-  const r=abierta();
-  if(!r)return alert("No hay ninguna entrada abierta.");
-  try{
-    await api(encodeURIComponent(TABLE)+"?id=eq."+encodeURIComponent(r.id),{
-      method:"PATCH",
-      body:JSON.stringify({salida:ahora()})
-    });
-    await cargarRegistros();
-  }catch(e){
-    ponerCloud("❌ "+e.message,false);
-    alert("No se pudo guardar la salida. Revisa las políticas RLS.");
-  }
-}
+
 async function guardarManual(){
-  const f=document.getElementById("fecha").value;
-  const e=document.getElementById("horaEntrada").value;
-  const s=document.getElementById("horaSalida").value;
-  const d=Number(document.getElementById("descanso").value||0);
-  const n=document.getElementById("notas").value.trim();
-  if(!f||!e||!s)return alert("Completa fecha, entrada y salida.");
+  const f=fecha.value;if(!f)return alert("Indica la fecha.");
+  const d={fecha:f,entrada_manana:mEntrada.value||null,salida_manana:mSalida.value||null,entrada_tarde:tEntrada.value||null,salida_tarde:tSalida.value||null,notas:notas.value.trim()};
   try{
-    await api(encodeURIComponent(TABLE),{
-      method:"POST",
-      body:JSON.stringify({fecha:f,entrada:e,salida:s,descanso:d,notas:n})
-    });
-    document.getElementById("mes").value=f.slice(0,7);
-    document.getElementById("horaEntrada").value="";
-    document.getElementById("horaSalida").value="";
-    document.getElementById("notas").value="";
-    await cargarRegistros();
-  }catch(err){
-    ponerCloud("❌ "+err.message,false);
-    alert("No se pudo guardar el registro. Revisa las políticas RLS.");
-  }
+    const r=registros.find(x=>x.fecha===f);
+    if(r) await api(encodeURIComponent(TABLE)+"?id=eq."+encodeURIComponent(r.id),{method:"PATCH",body:JSON.stringify(d)});
+    else await api(encodeURIComponent(TABLE),{method:"POST",body:JSON.stringify(d)});
+    mes.value=f.slice(0,7);await cargar();
+  }catch(e){nube("❌ "+e.message,false);alert("No se pudo guardar el día.");}
 }
-async function borrarRegistro(id){
-  if(!confirm("¿Borrar este registro?"))return;
-  try{
-    await api(encodeURIComponent(TABLE)+"?id=eq."+encodeURIComponent(id),{method:"DELETE"});
-    await cargarRegistros();
-  }catch(e){
-    alert("No se pudo borrar el registro.");
-  }
+
+async function borrar(id){
+  if(!confirm("¿Borrar este día completo?"))return;
+  try{await api(encodeURIComponent(TABLE)+"?id=eq."+encodeURIComponent(id),{method:"DELETE"});await cargar()}catch(e){alert("No se pudo borrar.");}
 }
+
 function render(){
-  const m=document.getElementById("mes").value;
-  const lista=registros.filter(r=>r.fecha&&r.fecha.startsWith(m));
-  let total=0,html="";
-  lista.forEach(r=>{
-    const h=horas(r); total+=h;
-    html+=`<tr>
-      <td>${r.fecha.split("-").reverse().join("/")}</td>
-      <td>${r.entrada||""}</td>
-      <td>${r.salida||"Abierta"}</td>
-      <td>${h.toFixed(2).replace(".",",")}</td>
-      <td>${(h*PRECIO).toFixed(2).replace(".",",")} €</td>
-      <td><button class="small gray" onclick="borrarRegistro('${r.id}')">Borrar</button></td>
-    </tr>`;
+  const m=mes.value,l=registros.filter(r=>r.fecha&&r.fecha.startsWith(m));let t=0,dias=0,html="";
+  l.forEach(r=>{
+    const h=horasDia(r);t+=h;if(h>0)dias++;
+    html+=`<tr><td>${r.fecha.split("-").reverse().join("/")}</td><td>${hh(r.entrada_manana||r.entrada)||"-"}</td><td>${hh(r.salida_manana||r.salida)||"-"}</td><td>${hh(r.entrada_tarde)||"-"}</td><td>${hh(r.salida_tarde)||"-"}</td><td>${h.toFixed(2).replace(".",",")}</td><td>${(h*PRECIO).toFixed(2).replace(".",",")} €</td><td><button class="small danger" onclick="borrar('${r.id}')">Borrar</button></td></tr>`;
   });
-  document.getElementById("tabla").innerHTML=html;
-  document.getElementById("totalHoras").textContent=total.toFixed(2).replace(".",",")+" h";
-  document.getElementById("totalEuros").textContent=(total*PRECIO).toFixed(2).replace(".",",")+" €";
-  const a=abierta();
-  document.getElementById("estado").textContent=a?"Jornada abierta desde las "+a.entrada:"No hay jornada abierta.";
+  tabla.innerHTML=html;totalHoras.textContent=t.toFixed(2).replace(".",",")+" h";totalEuros.textContent=(t*PRECIO).toFixed(2).replace(".",",")+" €";totalDias.textContent=dias;
+  const r=deHoy();
+  estado.textContent=r?`Hoy · Mañana: ${hh(r.entrada_manana||r.entrada)||"--:--"} - ${hh(r.salida_manana||r.salida)||"--:--"} · Tarde: ${hh(r.entrada_tarde)||"--:--"} - ${hh(r.salida_tarde)||"--:--"}`:"Hoy todavía no hay ningún fichaje.";
 }
+
 function exportarCSV(){
-  const m=document.getElementById("mes").value;
-  const lista=registros.filter(r=>r.fecha&&r.fecha.startsWith(m));
-  if(!lista.length)return alert("No hay registros en este mes.");
-  let csv="Fecha;Entrada;Salida;Descanso;Horas;Precio/hora;Importe;Notas\n",total=0;
-  lista.forEach(r=>{
-    const h=horas(r); total+=h;
-    csv += `${r.fecha};${r.entrada||""};${r.salida||""};${r.descanso||0};${h.toFixed(2).replace(".",",")};11,00;${(h*11).toFixed(2).replace(".",",")};${(r.notas||"").replaceAll(";"," ")}\n`;
-  });
-  csv+=`TOTAL;;;;${total.toFixed(2).replace(".",",")};;${(total*11).toFixed(2).replace(".",",")};\n`;
-  const blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"});
-  const u=URL.createObjectURL(blob),a=document.createElement("a");
+  const m=mes.value,l=registros.filter(r=>r.fecha&&r.fecha.startsWith(m));if(!l.length)return alert("No hay registros.");
+  let csv="Fecha;Entrada mañana;Salida mañana;Entrada tarde;Salida tarde;Horas totales;Precio/hora;Importe;Notas\n",t=0;
+  l.forEach(r=>{const h=horasDia(r);t+=h;csv+=`${r.fecha};${hh(r.entrada_manana||r.entrada)};${hh(r.salida_manana||r.salida)};${hh(r.entrada_tarde)};${hh(r.salida_tarde)};${h.toFixed(2).replace(".",",")};11,00;${(h*11).toFixed(2).replace(".",",")};${(r.notas||"").replaceAll(";"," ")}\n`});
+  csv+=`TOTAL;;;;;${t.toFixed(2).replace(".",",")};;${(t*11).toFixed(2).replace(".",",")};\n`;
+  const b=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}),u=URL.createObjectURL(b),a=document.createElement("a");
   a.href=u;a.download="Control_horas_"+m+".csv";a.click();URL.revokeObjectURL(u);
 }
-window.addEventListener("load",()=>{
-  document.getElementById("mes").value=mesActual();
-  document.getElementById("fecha").value=hoy();
-  cargarRegistros();
-});
+
+window.onload=()=>{mes.value=mesActual();fecha.value=hoy();cargar()};
 </script>
 </body>
 </html>
