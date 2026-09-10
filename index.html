@@ -59,11 +59,16 @@ table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:8px;borde
 </div>
 
 <div class="card">
+<h3>Consultar por mes</h3>
 <div class="row">
-<div><label>Mes</label><input id="mes" type="month" onchange="render()"></div>
-<div style="display:flex;align-items:end"><button class="gray" onclick="exportarCSV()">Exportar informe Excel/CSV</button></div>
+<div><label>Mes a consultar</label><input id="mes" type="month" onchange="render()"></div>
+<div style="display:flex;align-items:end"><button class="gray" onclick="exportarCSV()">📄 Exportar Excel/CSV del mes elegido</button></div>
 </div>
-<button class="gray" style="margin-top:12px" onclick="cargar()">🔄 Sincronizar</button>
+<div class="buttons" style="margin-top:12px">
+<button class="gray" onclick="mesAnterior()">◀️ Mes anterior</button>
+<button class="gray" onclick="mesSiguiente()">Mes siguiente ▶️</button>
+</div>
+<button class="gray" style="margin-top:12px" onclick="cargar()">🔄 Sincronizar todos los registros</button>
 </div>
 
 <div class="card">
@@ -143,15 +148,27 @@ async function borrar(id){
 }
 
 function render(){
-  const m=mes.value,l=registros.filter(r=>r.fecha&&r.fecha.startsWith(m));let t=0,dias=0,html="";
+  const m=mes.value||mesActual();
+  const l=registros.filter(r=>r.fecha&&r.fecha.startsWith(m));let t=0,dias=0,html="";
   l.forEach(r=>{
     const h=horasDia(r);t+=h;if(h>0)dias++;
     html+=`<tr><td>${r.fecha.split("-").reverse().join("/")}</td><td>${hh(r.entrada_manana||r.entrada)||"-"}</td><td>${hh(r.salida_manana||r.salida)||"-"}</td><td>${hh(r.entrada_tarde)||"-"}</td><td>${hh(r.salida_tarde)||"-"}</td><td>${h.toFixed(2).replace(".",",")}</td><td>${(h*PRECIO).toFixed(2).replace(".",",")} €</td><td><button class="small danger" onclick="borrar('${r.id}')">Borrar</button></td></tr>`;
   });
-  tabla.innerHTML=html;totalHoras.textContent=t.toFixed(2).replace(".",",")+" h";totalEuros.textContent=(t*PRECIO).toFixed(2).replace(".",",")+" €";totalDias.textContent=dias;
+  tabla.innerHTML=html || `<tr><td colspan="8" style="text-align:center;color:#6b7280">No hay registros en este mes</td></tr>`;totalHoras.textContent=t.toFixed(2).replace(".",",")+" h";totalEuros.textContent=(t*PRECIO).toFixed(2).replace(".",",")+" €";totalDias.textContent=dias;
   const r=deHoy();
   estado.textContent=r?`Hoy · Mañana: ${hh(r.entrada_manana||r.entrada)||"--:--"} - ${hh(r.salida_manana||r.salida)||"--:--"} · Tarde: ${hh(r.entrada_tarde)||"--:--"} - ${hh(r.salida_tarde)||"--:--"}`:"Hoy todavía no hay ningún fichaje.";
 }
+
+
+function cambiarMes(delta){
+  if(!mes.value) mes.value=mesActual();
+  const [y,m]=mes.value.split("-").map(Number);
+  const d=new Date(y,m-1+delta,1);
+  mes.value=d.getFullYear()+"-"+p(d.getMonth()+1);
+  render();
+}
+function mesAnterior(){cambiarMes(-1)}
+function mesSiguiente(){cambiarMes(1)}
 
 function exportarCSV(){
   const m=mes.value,l=registros.filter(r=>r.fecha&&r.fecha.startsWith(m));if(!l.length)return alert("No hay registros.");
